@@ -1,14 +1,4 @@
-"""Glue between the spiking brain and the game: sensors in, actions out, and the reward
-signal that actually changes the brain's synapses (see FlyBrain.reward in brain.py).
 
-There is no separate "genome" here anymore - the fly's improvement over time IS the
-weight changes inside its own brain. What this file does is:
-  1. turn game sensors into an input current for the brain,
-  2. turn the brain's motor-neuron firing rates into game actions,
-  3. turn game outcomes (forward progress, death, clearing a level) into a reward
-     number and feed it to the brain right when it happens, so credit lands on
-     whatever just fired.
-"""
 import json
 import os
 
