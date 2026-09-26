@@ -1,16 +1,4 @@
-#!/usr/bin/env python3
-"""HTTP bridge between Roblox and the fly brain.
 
-    python server.py                       # synthetic 2,920-neuron brain
-    python server.py --neurons n.csv --synapses s.csv --weight-scale 0.05
-
-Endpoints (all JSON):
-    POST /start   {}                                         -> new attempt begins
-    POST /step    {"s": [sensor floats], "dx": float}        -> {"actions":[{"f","t","j"},...], "window", "stats"}
-    POST /end     {"progress": float, "level": int, "cleared": bool}
-    POST /reward  {"level": int, "tier": int}                -> sugar-neuron stimulation (flavor, not learning)
-    GET  /status
-"""
 import argparse
 import json
 import sys
