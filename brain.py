@@ -9,24 +9,23 @@ MOTORS = ("forward", "left", "right", "jump")
 
 
 INSTINCT_CHANNELS = {
-    "forward": [19, 20],   # smell the goal -> walk
-    "left": [19, 3],       # goal smells left / something dead ahead -> veer left
+    "forward": [19, 20],  
+    "left": [19, 3],     
     "right": [20, 3],
-    "jump": [10, 11],      # a gap is actually ahead -> jump
+    "jump": [10, 11],    
 }
 
 
 class FlyBrain:
-    DT = 1.0      # ms per simulation step
-    TAU_M = 20.0  # membrane time constant (ms)
-    TAU_S = 5.0   # synaptic current time constant (ms)
-    T_REF = 2.0   # refractory period (ms)
-    NOISE = 0.25  # membrane noise, keeps the brain from being perfectly deterministic
+    DT = 1.0     
+    TAU_M = 20.0 
+    TAU_S = 5.0  
+    T_REF = 2.0  
+    NOISE = 0.25 
 
-    TAU_ELIG = 400.0   # ms; how long a pre/post coincidence stays "eligible" to be reinforced
-    CAP_MULT = 5.0     # a synapse can grow to at most this many times its original size
-    MIN_CAP = 0.05     # ...and at least this much, so near-zero synapses can still grow
-
+    TAU_ELIG = 400.0  
+    CAP_MULT = 5.0  
+    MIN_CAP = 0.05     
     def __init__(self, W, sens_chan, motor_idx, sugar_idx, seed=0, plastic=True):
         """
         W          sparse (post x pre) matrix. Entry = membrane jump-current per spike (signed).
@@ -35,14 +34,13 @@ class FlyBrain:
         sugar_idx  int array of sugar-taste neuron indices.
         plastic    if True, reward() actually changes synapse weights (see below).
         """
-        csr = sp.csr_matrix(W, dtype=np.float32)  # coalesces any duplicate (pre,post) pairs once, here
+        csr = sp.csr_matrix(W, dtype=np.float32) 
         self.n = csr.shape[0]
         self.W_csr = csr
         self.indptr = csr.indptr
-        self.col = csr.indices                         # pre-neuron id of each synapse, canonical order
-        self.data = csr.data                            # weight of each synapse, SAME array object as csr.data:
-        self.row = np.repeat(np.arange(self.n), np.diff(self.indptr)).astype(np.int32)  # post-neuron id, same order
-
+        self.col = csr.indices                      
+        self.data = csr.data                        
+        self.row = np.repeat(np.arange(self.n), np.diff(self.indptr)).astype(np.int32) 
         self.plastic = plastic
         self.sign = np.sign(self.data).astype(np.float32)
         self.cap = np.maximum(np.abs(self.data) * self.CAP_MULT, self.MIN_CAP).astype(np.float32)
@@ -63,7 +61,7 @@ class FlyBrain:
         self.v = np.zeros(self.n, dtype=np.float32)
         self.g = np.zeros(self.n, dtype=np.float32)
         self.refr = np.zeros(self.n, dtype=np.float32)
-        self.elig[:] = 0.0  # don't carry credit-assignment traces from a previous, unrelated attempt
+        self.elig[:] = 0.0  
 
     def run(self, ms, drive):
         """Simulate `ms` milliseconds with constant external current `drive` (length N).
@@ -104,7 +102,7 @@ class FlyBrain:
         np.clip(self.data, -self.cap, 0.0, out=self.data, where=neg)
 
 
-# ---------------------------------------------------------------- synthetic brain
+
 def build_synthetic(n_channels=21, per_channel=20, pool=300, shared=1200, per_motor=30, n_sugar=40, seed=0, innate=True, plastic=True):
     """A random stand-in fly brain with fixed wiring (until you plug in a real connectome).
 
@@ -146,14 +144,14 @@ def build_synthetic(n_channels=21, per_channel=20, pool=300, shared=1200, per_mo
         picks = rng.choice(others, size=4 - len(designated), replace=False)
         preferred = np.array(list(designated) + [int(c) for c in picks])
         pref_neurons = np.concatenate([np.arange(c * per_channel, (c + 1) * per_channel) for c in preferred])
-        connect(pool_ids, pref_neurons, 8, 0.8, 0.8)      # strong, specific sensory input
-        connect(pool_ids, all_sens, 3, 0.3, 0.3)          # weak background from everything
-        connect(pool_ids, pool_ids, 6, 0.2, 0.5)          # a little within-pool recurrence
+        connect(pool_ids, pref_neurons, 8, 0.8, 0.8)     
+        connect(pool_ids, all_sens, 3, 0.3, 0.3)       
+        connect(pool_ids, pool_ids, 6, 0.2, 0.5)        
         connect(np.arange(m0 + p * per_motor, m0 + (p + 1) * per_motor), pool_ids, 40, 0.3, 0.6)
     connect(shared_ids, all_sens, 6, 0.6, 0.6)
     connect(shared_ids, hidden_ids, 15, 0.25, 0.7)
     connect(hidden_ids, s0 + np.arange(n_sugar), 20, 0.6, 0.6)
-    for p in range(len(MOTORS)):                           # the shared mess leaks into every motor group
+    for p in range(len(MOTORS)):                        
         connect(np.arange(m0 + p * per_motor, m0 + (p + 1) * per_motor), shared_ids, 6, 0.3, 0.6)
 
     W = sp.coo_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)).tocsr()
@@ -163,7 +161,7 @@ def build_synthetic(n_channels=21, per_channel=20, pool=300, shared=1200, per_mo
     return FlyBrain(W, sens_chan, motor_idx, np.arange(s0, n), seed=seed, plastic=plastic)
 
 
-# ---------------------------------------------------------------- CSV connectomes
+
 def save_csv(brain, neurons_path, synapses_path):
     """Write a brain (including any learning that's happened to its weights) in the CSV format load_csv reads."""
     role = {}
