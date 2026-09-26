@@ -1,10 +1,4 @@
-"""A small spiking-neuron 'fly brain'.
 
-Leaky integrate-and-fire (LIF) neurons, sparse signed synapses, exponential
-synaptic currents. Works on a built-in synthetic network (so everything runs
-out of the box) or on a real connectome you export to two CSV files
-(see load_csv / README).
-"""
 import csv
 import math
 
@@ -13,19 +7,7 @@ import scipy.sparse as sp
 
 MOTORS = ("forward", "left", "right", "jump")
 
-# Sensor channel order sent by FlyBrain.server.lua:
-#   0-6   whiskers: obstacle proximity at -60..+60 degrees
-#   7-9   floor present ahead at 3/6/9 studs (1 = ground, 0 = gap)
-#   10-12 GAP ahead at 3/6/9 studs (1 = gap, 0 = ground) -- see note below
-#   13-15 low whiskers for kill strips
-#   16    speed, 17 grounded, 18 vertical speed
-#   19    left antenna, 20 right antenna (which way the goal smells)
-#
-# Channels 10-12 exist because a linear brain can't learn "jump when there's a gap" from
-# channels 7-9 alone: drive = gain * sensor_value, so when the floor-present sensor reads 0
-# (a gap), gain * 0 is 0 no matter what gain evolution finds -- the absence of a signal can
-# never trigger anything. 10-12 flip that (1 - floor_present) so a gap sends a real,
-# positive, learnable signal.
+
 INSTINCT_CHANNELS = {
     "forward": [19, 20],   # smell the goal -> walk
     "left": [19, 3],       # goal smells left / something dead ahead -> veer left
