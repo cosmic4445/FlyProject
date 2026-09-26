@@ -6,25 +6,25 @@ import numpy as np
 
 from brain import MOTORS
 
-AMP_IN = 3.0         # sensory current per unit of sensor value
-AMP_BIAS = 1.2       # constant nudge toward each motor group (helps it get off the ground at all)
+AMP_IN = 3.0        
+AMP_BIAS = 1.2      
 BIAS = {"forward": 1.5, "left": 0.0, "right": 0.0, "jump": -0.3}
 
-WINDOW_MS = 150      # brain time simulated per /step request
-SUBFRAMES = 3        # actions returned per request (game applies each for WINDOW/SUBFRAMES)
+WINDOW_MS = 150      
+SUBFRAMES = 3      
 
-# rate (Hz) -> action decoding
+
 FWD_LO, FWD_SPAN = 10.0, 40.0
 TURN_SPAN = 50.0
 JUMP_THRESHOLD = 40.0
 
-# reward shaping
-DX_PER_STEP = 2.5       # studs of forward progress per SUBFRAME that counts as "full marks" (reward = 1.0)
-LR_STEP = 0.03          # learning rate for the small per-step progress reward
-LR_TERMINAL = 0.15      # learning rate for the big end-of-attempt reward (death / clear)
+
+DX_PER_STEP = 2.5    
+LR_STEP = 0.03         
+LR_TERMINAL = 0.15     
 DEATH_REWARD = -1.0
 CLEAR_REWARD_BASE = 1.5
-CLEAR_REWARD_PER_LEVEL = 0.15  # clearing a harder level reinforces a bit more strongly
+CLEAR_REWARD_PER_LEVEL = 0.15 
 
 
 class Fly:
@@ -42,7 +42,7 @@ class Fly:
         self.last_progress = 0.0
         self._load()
 
-    # ------------------------------------------------------------ attempts
+   
     def start_attempt(self):
         self.attempt += 1
         self.brain.reset()
@@ -62,7 +62,7 @@ class Fly:
             self._save()
         return self._stats()
 
-    # ------------------------------------------------------------ control
+ 
     def _drive(self, sensors):
         b = self.brain
         x = np.zeros(self.C, dtype=np.float32)
@@ -112,7 +112,7 @@ class Fly:
             sugar += int(counts[b.sugar_idx].sum())
         return {"sugar_spikes": sugar, "stats": self._stats()}
 
-    # ------------------------------------------------------------ bookkeeping
+
     def _stats(self):
         return {
             "neurons": int(self.brain.n),
