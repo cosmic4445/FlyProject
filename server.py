@@ -13,7 +13,7 @@ def make_handler(fly):
         protocol_version = "HTTP/1.1"
 
         def log_message(self, fmt, *args):
-            pass  # keep the console readable; we print our own events
+            pass
 
         def _send(self, code, obj):
             body = json.dumps(obj).encode()
